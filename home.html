@@ -4,13 +4,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     #pong {
-      width: 100%;
-      height: 100%
+      border: 4px solid black;
     }
-
   </style>
 </head>
 
-<body>
-  <canvas id="pong" onclick="draw_b()"> </canvas>
+<body onload="drawBoard()">
+  <canvas id="pong" width='600px' height='400px'></canvas>
 </body>
