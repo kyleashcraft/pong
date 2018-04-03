@@ -3,9 +3,9 @@ var pong, ctx, player, computer, ball;
 function initialize(){
   pong = document.getElementById("pong");
   ctx = pong.getContext("2d");
-  player = new Paddle(10, pong.height/2, 0);
-  computer = new Paddle(pong.width-20, pong.height/2, 0);
-  ball = new Ball(pong.width/2, pong.height/2, 0, 0);
+  player = new Paddle(10, pong.height/2 - 25, 0);
+  computer = new Paddle(pong.width-20, pong.height/2 - 25, 0);
+  ball = new Ball(pong.width/2, pong.height/2, -3, 3);
 }
 
 function Ball(x, y, xv, yv){
@@ -22,6 +22,22 @@ Ball.prototype.render = function(){
   ctx.arc(this.xpos, this.ypos, this.rad, 0*Math.PI, 2*Math.PI);
   ctx.fillStyle = 'black';
   ctx.fill();
+}
+
+Ball.prototype.move = function(){
+  if ((ball.xpos - ball.rad <= player.xpos + player.width) && //ball hits right side of left (player) paddle AND
+      (ball.ypos + ball.rad >= player.ypos && ball.ypos - ball.rad <= player.ypos + player.height) || //ball within y range of left (player) paddle OR
+      (ball.xpos + ball.rad >= computer.xpos) && // ball hits left side of right (computer) paddle AND
+      (ball.ypos + ball.rad >= computer.ypos && ball.ypos - ball.rad <= computer.ypos + computer.height) //ball within y range of right (computer) paddle
+  ){
+    ball.xvel *= -1; //then reverse x direction
+  }
+  if (ball.ypos - ball.rad <= 0 || ball.ypos + ball.rad >= pong.height){ //if top of ball hits top of canvas or bottom of ball htis bottom of canvas
+    ball.yvel *= -1;
+  }
+
+  this.xpos += this.xvel;
+  this.ypos += this.yvel;
 }
 
 function Paddle(x, y, v){
@@ -81,6 +97,8 @@ var step = function(){
 
 var update = function(){
   player.move();
+  ball.move();
+  computer.move();
 }
 
 var render = function(){
