@@ -8,12 +8,22 @@ function initialize(){
   ball = new Ball(pong.width/2, pong.height/2, -3, 3);
 }
 
-function Ball(x, y, xv, yv){
+function Ball(x, y){
+  this.vtot = 6;
   this.xpos = x;
   this.ypos = y;
-  this.xvel = xv;
-  this.yvel = yv;
+  this.xvel = 1 + Math.random() * (this.vtot - 1);
+  if (Math.random() >= .5) this.xvel *= -1;
+  this.yvel = this.vtot - this.xvel;
   this.rad = 10;
+}
+
+Ball.prototype.serve = function(){
+  this.xpos = pong.width / 2;
+  this.ypos = pong.height / 2;
+  this.xvel = 1 + Math.random() * (this.vtot - 1);
+  if (Math.random() >= .5) this.xvel *= -1;
+  this.yvel = this.vtot - this.xvel;
 }
 
 Ball.prototype.render = function(){
@@ -64,13 +74,22 @@ Paddle.prototype.move = function(){
   }
 }
 
-Paddle.prototype.update = function(){ //'AI segment', use only to move computer players.
-  if (this.ypos + .5 * this.height > ball.ypos + ball.rad){
+Paddle.prototype.update = function(){ //'AI' motion, use only to move computer players.
+  if (ball.ypos < this.ypos){
     this.vel = -2;
-  } else if (this.ypos - .5 * this.height < ball.ypos - ball.rad){
+  } else if (ball.ypos > this.ypos + this.height){
     this.vel = 2;
+  } else if (ball.ypos > this.ypos && ball.ypos < this.ypos + this.height && Math.abs(ball.yvel) <= 2 ){
+    this.vel = ball.yvel;
+  } else {
+    this.vel = 2 * (ball.yvel / ball.yvel);
   }
+
   this.ypos += this.vel;
+  if (this.ypos + this.height > pong.height) this.ypos = pong.height - this.height;
+  if (this.ypos < 0) this.ypos = 0;
+
+
 }
 
 window.addEventListener('keydown', (event) =>{
@@ -127,10 +146,10 @@ var render = function(){
 var score = function(){
   if (ball.xpos + ball.rad <= 0){
     computer.score++;
-    restart();
+    ball.serve();
   } else if (ball.xpos - ball.rad >= pong.width){
     player.score++;
-    restart();
+    ball.serve();
   }
 }
 
@@ -139,11 +158,4 @@ function play() {
   initialize();
   drawBoard();
   animate(step);
-}
-
-function restart() {
-    ball.xpos = pong.width/2;
-    ball.ypos = pong.height/2;
-    ball.xvel = -3;
-    ball.yvel = 3;
 }
