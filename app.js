@@ -1,4 +1,5 @@
-var pong, ctx, player, computer, ball;
+var pong, ctx, player, computer, ball, newGame;
+const scoreToWin = 11;
 
 function initialize(){
   pong = document.getElementById("pong");
@@ -126,7 +127,7 @@ var step = function(){
   update();
   render();
   score();
-  animate(step);
+  player.score >= scoreToWin || computer.score >= scoreToWin ? gameEnd() : animate(step);
 }
 
 var update = function(){
@@ -153,6 +154,16 @@ var score = function(){
   }
 }
 
+var gameEnd = function(){
+  ctx.beginPath();
+  ctx.fillStyle = '#FFE0B5';
+  ctx.fillRect(0, 0, pong.width, pong.height);
+  ctx.fillStyle = 'white';
+  ctx.font = "40px arial";
+  player.score == scoreToWin ? ctx.fillText("You won!", 230, pong.height/2) : ctx.fillText("You lost!", 230, pong.height/2);
+  ctx.font = "20px arial";
+  ctx.fillText("Refresh page to play again", 190, pong.height/2 + 30)
+}
 
 function play() {
   initialize();
