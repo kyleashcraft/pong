@@ -25,9 +25,9 @@ Ball.prototype.render = function(){
 }
 
 Ball.prototype.move = function(){
-  if ((ball.xpos - ball.rad <= player.xpos + player.width) && //ball hits right side of left (player) paddle AND
+  if ((ball.xpos - ball.rad <= player.xpos + player.width && ball.xpos + ball.rad >= player.xpos) && //ball hits right side of left (player) paddle AND
       (ball.ypos + ball.rad >= player.ypos && ball.ypos - ball.rad <= player.ypos + player.height) || //ball within y range of left (player) paddle OR
-      (ball.xpos + ball.rad >= computer.xpos) && // ball hits left side of right (computer) paddle AND
+      (ball.xpos + ball.rad >= computer.xpos && ball.xpos - ball.rad <= computer.xpos + computer.width) && // ball hits left side of right (computer) paddle AND
       (ball.ypos + ball.rad >= computer.ypos && ball.ypos - ball.rad <= computer.ypos + computer.height) //ball within y range of right (computer) paddle
   ){
     ball.xvel *= -1; //then reverse x direction
@@ -46,6 +46,7 @@ function Paddle(x, y, v){
   this.vel = v;
   this.width = 10;
   this.height = 50;
+  this.score = 0;
 }
 
 Paddle.prototype.render = function(){
@@ -61,6 +62,15 @@ Paddle.prototype.move = function(){
   } else if (this.ypos > pong.height - this.height) {
     this.ypos = pong.height - this.height;
   }
+}
+
+Paddle.prototype.update = function(){ //'AI segment', use only to move computer players.
+  if (this.ypos + .5 * this.height > ball.ypos + ball.rad){
+    this.vel = -2;
+  } else if (this.ypos - .5 * this.height < ball.ypos - ball.rad){
+    this.vel = 2;
+  }
+  this.ypos += this.vel;
 }
 
 window.addEventListener('keydown', (event) =>{
@@ -80,6 +90,10 @@ function drawBoard(){
   ctx.beginPath();
   ctx.fillStyle = '#FFE0B5';
   ctx.fillRect(0, 0, pong.width, pong.height);
+  ctx.fillStyle = 'white';
+  ctx.font = "20px arial";
+  ctx.fillText(player.score, .25 * pong.width, 25);
+  ctx.fillText(computer.score, .75 * pong.width, 25);
 }
 
 var animate = window.requestAnimationFrame ||
@@ -92,13 +106,14 @@ var animate = window.requestAnimationFrame ||
 var step = function(){
   update();
   render();
+  score();
   animate(step);
 }
 
 var update = function(){
   player.move();
   ball.move();
-  computer.move();
+  computer.update();
 }
 
 var render = function(){
@@ -109,9 +124,26 @@ var render = function(){
   ball.render();
 }
 
+var score = function(){
+  if (ball.xpos + ball.rad <= 0){
+    computer.score++;
+    restart();
+  } else if (ball.xpos - ball.rad >= pong.width){
+    player.score++;
+    restart();
+  }
+}
+
 
 function play() {
   initialize();
   drawBoard();
   animate(step);
+}
+
+function restart() {
+    ball.xpos = pong.width/2;
+    ball.ypos = pong.height/2;
+    ball.xvel = -3;
+    ball.yvel = 3;
 }
