@@ -13,18 +13,18 @@ function Ball(x, y){
   this.vtot = 6;
   this.xpos = x;
   this.ypos = y;
-  this.xvel = 1 + Math.random() * (this.vtot - 1);
-  if (Math.random() >= .5) this.xvel *= -1;
+  this.xvel = 2.5 + Math.random() * (this.vtot - 1);
   this.yvel = this.vtot - this.xvel;
-  this.rad = 10;
+  if (Math.random() >= .5) this.xvel *= -1;
+  this.rad = 5;
 }
 
 Ball.prototype.serve = function(){
   this.xpos = pong.width / 2;
   this.ypos = pong.height / 2;
-  this.xvel = 1 + Math.random() * (this.vtot - 1);
-  if (Math.random() >= .5) this.xvel *= -1;
+  this.xvel = 2.5 + Math.random() * (this.vtot - 1);
   this.yvel = this.vtot - this.xvel;
+  if (Math.random() >= .5) this.xvel *= -1;
 }
 
 Ball.prototype.render = function(){
@@ -36,12 +36,13 @@ Ball.prototype.render = function(){
 }
 
 Ball.prototype.move = function(){
-  if ((ball.xpos - ball.rad <= player.xpos + player.width && ball.xpos + ball.rad >= player.xpos) && //ball hits right side of left (player) paddle AND
-      (ball.ypos + ball.rad >= player.ypos && ball.ypos - ball.rad <= player.ypos + player.height) || //ball within y range of left (player) paddle OR
-      (ball.xpos + ball.rad >= computer.xpos && ball.xpos - ball.rad <= computer.xpos + computer.width) && // ball hits left side of right (computer) paddle AND
-      (ball.ypos + ball.rad >= computer.ypos && ball.ypos - ball.rad <= computer.ypos + computer.height) //ball within y range of right (computer) paddle
+  if ((ball.xpos <= player.xpos + player.width && ball.xpos >= player.xpos) && //ball hits right side of left (player) paddle AND
+      (ball.ypos >= player.ypos && ball.ypos <= player.ypos + player.height) || //ball within y range of left (player) paddle OR
+      (ball.xpos >= computer.xpos && ball.xpos <= computer.xpos + computer.width) && // ball hits left side of right (computer) paddle AND
+      (ball.ypos >= computer.ypos && ball.ypos <= computer.ypos + computer.height) //ball within y range of right (computer) paddle
   ){
     ball.xvel *= -1; //then reverse x direction
+    ball.xpos += 2*ball.xvel;
   }
   if (ball.ypos - ball.rad <= 0 || ball.ypos + ball.rad >= pong.height){ //if top of ball hits top of canvas or bottom of ball htis bottom of canvas
     ball.yvel *= -1;
@@ -55,7 +56,7 @@ function Paddle(x, y, v){
   this.xpos = x;
   this.ypos = y;
   this.vel = v;
-  this.width = 10;
+  this.width = 5;
   this.height = 50;
   this.score = 0;
 }
